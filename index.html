@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.0.2/dist/sweetalert2.min.css">  
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <style>
+    #app{
+        background-color:#CFD8DC;      
+    }
+    </style>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-main>
+                <v-card class="mx-auto mt-5" color="transparent" max-width="1280" elevation="0">            
+                    <v-btn class="mx-2" fab dark color="#E040FB" @click="formNuevo()"><v-icon dark>mdi-plus</v-icon></v-btn>       
+                    <v-simple-table>
+                        <template v-slot:default>
+                            <thead>
+                                <tr>
+                                    <tr class="purple darken-2">
+                                        <th class="white--text">ID</th>
+                                        <th class="white--text"> IMAGEN </th>
+                                        <th class="white--text">ACTOR</th>
+                                        <th class="white--text">DESCRIPCIÓN</th>
+                                        <th class="white--text">BOTON SI</th>
+                                        <th class="white--text">BOTON NO</th>
+                                        <th class="white--text text-center">ACCIONES</th>
+                                    </tr>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                 <tr v-for="situacion in situaciones" :key="situacion.id">
+                                    <td>{{situacion.id}}</td>
+                                    <td> {{situacion.Imagen}} </td>
+                                    <td>{{situacion.Actor}}</td>
+                                    <td>{{situacion.Descripcion}}</td>
+                                    <td>{{situacion.BotonSi}}</td>
+                                    <td>{{situacion.BotonNo}}</td>
+                                    <td>
+                                        <v-btn class="pink" dark small fab  @click="formEditar(
+                                          situacion.id,
+                                          situacion.Actor,
+                                          situacion.Descripcion,
+                                          situacion.BotonSi, 
+                                          situacion.BotonNo,
+                                          situacion.Imagen,
+
+                                          situacion.EducacionSi,
+                                          situacion.PoliticaSi,
+                                          situacion.ViolenciaSi,
+                                          situacion.LaboralSi,
+
+                                          situacion.EducacionNo,
+                                          situacion.PoliticaNo,
+                                          situacion.ViolenciaNo,
+                                          situacion.LaboralNo
+                                          )"><v-icon>mdi-pencil</v-icon></v-btn>
+                                        <v-btn class="error" fab dark small @click="borrar(situacion.id)"><v-icon>mdi-delete</v-icon></v-btn>
+                                    </td>
+                                 </tr>
+                            </tbody>
+                        </template>
+                    </v-simple-table>
+                </v-card>
+                <!-- componente de dialogo para crear y editar-->
+                <v-dialog v-model="dialog" max-width="600">        
+                    <v-card>
+                      <v-card-title class="purple darken-4 white--text">Situación</v-card-title>    
+                      <v-card-text>            
+                        <v-form>
+                          <v-container>
+                        
+                            <input v-model="situacion.id" hidden></input>            
+                                  <label> Actor </label>
+                                  <v-text-field v-model="situacion.Actor" label="Escribe aquí..." solo required>{{situacion.Actor}}</v-text-field>
+                              
+                                  <label> Descripción </label>
+                                  <v-textarea v-model="situacion.Descripcion" label="Escribe aquí.." solo required>{{situacion.Descripcion}}</v-textarea>
+                              
+                                  <label> Decisión A </label>
+                                  <v-text-field v-model="situacion.BotonSi" label="Escribe aquí.." type="text" solo required>{{situacion.BotonSi}}</v-text-field>
+                                  <label> ¿Cómo varían los siguentes parámetros con respecto a la decisión A? </label>
+                                  
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="Educacion"
+                                      label="Escoge una opción para el parámetro [Educación]"
+                                      v-model="situacion.EducacionSi"
+                                    ></v-select>
+                                  </v-col>
+
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="Politica"
+                                      label="Escoge una opción para el parámetro [Política]"
+                                      v-model="situacion.PoliticaSi"
+                                    ></v-select>
+                                  </v-col>
+
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="Violencia"
+                                      label="Escoge una opción para el parámetro [Violencia de Género]"
+                                      v-model="situacion.ViolenciaSi"
+                                    ></v-select>
+                                  </v-col>
+                                  
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="Laboral"
+                                      label="Escoge una opción para el parámetro [Mercado Laboral]"
+                                      v-model="situacion.LaboralSi"
+                                    ></v-select>
+                                  </v-col>
+
+
+                                      
+                                  <label> Decisión B </label>
+                                  <v-text-field v-model="situacion.BotonNo" label="Escribe aquí.." type="text" solo required>{{situacion.BotonNo}}</v-text-field>
+                                  <label> ¿Cómo varían los siguentes parámetros con respecto a la decisión B? </label>
+
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="Educacion"
+                                      label="Escoge una opción para el parámetro [Educación]"
+                                      v-model="situacion.EducacionNo"
+                                    ></v-select>
+                                  </v-col>
+
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="Politica"
+                                      label="Escoge una opción para el parámetro [Política]"
+                                      v-model="situacion.PoliticaNo"
+                                    ></v-select>
+                                  </v-col>
+
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="Violencia"
+                                      label="Escoge una opción para el parámetro [Violencia de Género]"
+                                      v-model="situacion.ViolenciaNo"
+                                    ></v-select>
+                                  </v-col>
+
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="Laboral"
+                                      label="Escoge una opción para el parámetro [Mercado Laboral]"
+                                      v-model="situacion.LaboralNo"
+                                    ></v-select>
+                                  </v-col>
+
+                                  
+
+                                  <v-col
+                                    class="d-flex"
+                                    cols="12"
+                                  >
+                                    <v-select
+                                      :items="items"
+                                      label="Imagen"
+                                      v-model="situacion.Imagen"
+                                    ></v-select>
+                                  </v-col>
+                          
+                        </v-container>                    
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn @click="dialog=false" color="blue-grey" dark>Cancelar</v-btn>
+                        <v-btn @click="guardar()" type="submit" color="purple accent-3" dark>Guardar</v-btn>
+                      </v-card-actions>
+                      </v-form>
+                    </v-card>
+                  </v-dialog>
+            </v-main>
+        </v-app>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.js" integrity="sha512-nqIFZC8560+CqHgXKez61MI0f9XSTKLkm0zFVm/99Wt0jSTZ7yeeYwbzyl0SGn/s8Mulbdw+ScCG41hmO2+FKw==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.0.2/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        //let url = 'http://127.0.0.1:8000/api/situaciones/';
+        let url = 'https://desolate-gorge-18045.herokuapp.com/';
+        new Vue({
+          el: '#app',
+          vuetify: new Vuetify(),
+           data() {
+            return {            
+                situaciones: [],
+                dialog: false,
+                operacion: '',            
+                situacion:{
+                    id: null,
+                    Actor:'',
+                    Imagen: '',
+                    Descripcion:'',
+                    BotonSi:'',
+                    BotonNo:'',
+
+                    EducacionSi: null,
+                    PoliticaSi: null,
+                    ViolenciaSi: null,
+                    LaboralSi: null,
+                    
+                    EducacionNo: null,
+                    PoliticaNo: null,
+                    ViolenciaNo: null,
+                    LaboralNo: null
+                },
+                items: ['Imagen de Hombre Adulto', 'Imagen de Mujer Adulta', 'Imagen de niño', 'Imagen de niña', 'Imagen de Mujer Joven', 'Imagen de Hombre Joven'], 
+                Educacion: ['Favorece a hombre y mujer', 'Desfavorece a ambos', 'Favorece solo a la mujer', 'Favorece solo al hombre', 'No afecta'] ,
+                Politica: ['Favorece a hombre y mujer', 'Desfavorece a ambos', 'Favorece solo a la mujer', 'Favorece solo al hombre', 'No afecta'] ,
+                Violencia: ['Favorece a hombre y mujer', 'Desfavorece a ambos', 'Favorece solo a la mujer', 'Favorece solo al hombre', 'No afecta'] ,  
+                Laboral: ['Favorece a hombre y mujer', 'Desfavorece a ambos', 'Favorece solo a la mujer', 'Favorece solo al hombre', 'No afecta']   
+
+            }
+           },
+           created(){               
+                this.mostrar()
+           },  
+           methods:{          
+                //MÉTODOS PARA EL CRUD
+                mostrar:function(){
+                  axios.get(url)
+                  .then(response =>{
+                    this.situaciones = response.data;                   
+                  })
+                },
+                crear:function(){
+                    let parametros = {
+                        Actor:this.situacion.Actor,
+                        Descripcion:this.situacion.Descripcion,
+                        BotonSi:this.situacion.BotonSi,
+                        BotonNo:this.situacion.BotonNo,
+                        Imagen:this.situacion.Imagen,
+
+                        EducacionSi:this.situacion.EducacionSi,
+                        PoliticaSi:this.situacion.PoliticaSi,
+                        ViolenciaSi:this.situacion.ViolenciaSi,
+                        LaboralSi:this.situacion.LaboralSi,
+
+                        EducacionNo:this.situacion.EducacionNo,
+                        PoliticaNo:this.situacion.PoliticaNo,
+                        ViolenciaNo:this.situacion.ViolenciaNo,
+                        LaboralNo:this.situacion.LaboralNo
+                        };                
+                    axios.post(url, parametros)
+                    .then(response =>{
+                      this.mostrar();
+                    });     
+                    this.situacion.Actores="";
+                    this.situacion.Descripcion="";
+                    this.situacion.BotonSi="";
+                    this.situacion.BotonNo="";
+                    this.situacion.Imagen="";
+
+                    this.situacion.EducacionSi=null;
+                    this.situacion.PoliticaSi=null;
+                    this.situacion.ViolenciaSi=null;
+                    this.situacion.LaboralSi=null;
+
+                    this.situacion.EducacionNo=null;
+                    this.situacion.PoliticaNo=null;
+                    this.situacion.ViolenciaNo=null;
+                    this.situacion.LaboralNo=null;
+                },                        
+                editar: function(){
+                let parametros = {
+                    Actor:this.situacion.Actor,
+                    Descripcion:this.situacion.Descripcion,
+                    BotonSi:this.situacion.BotonSi,
+                    BotonNo:this.situacion.BotonNo,
+                    id:this.situacion.id,
+                    Imagen:this.situacion.Imagen,
+                    
+                    EducacionSi:this.situacion.EducacionSi,
+                    PoliticaSi:this.situacion.PoliticaSi,
+                    ViolenciaSi:this.situacion.ViolenciaSi,
+                    LaboralSi:this.situacion.LaboralSi,
+
+                    EducacionNo:this.situacion.EducacionNo,
+                    PoliticaNo:this.situacion.PoliticaNo,
+                    ViolenciaNo:this.situacion.ViolenciaNo,
+                    LaboralNo:this.situacion.LaboralNo
+                    };                            
+                //console.log(parametros);                   
+                     axios.put(url+this.situacion.id, parametros)                            
+                      .then(response => {                                
+                         this.mostrar();
+                      })                
+                      .catch(error => {
+                          console.log(error);            
+                      });
+                },
+                borrar:function(id){
+                 Swal.fire({
+                    title: '¿Confirma eliminar el registro?',   
+                    confirmButtonText: `Confirmar`,                  
+                    showCancelButton: true,                          
+                  }).then((result) => {                
+                    if (result.isConfirmed) {      
+                          //procedimiento borrar
+                          axios.delete(url+id)
+                          .then(response =>{           
+                              this.mostrar();
+                           });      
+                          Swal.fire('¡Eliminado!', '', 'success')
+                    } else if (result.isDenied) {                  
+                    }
+                  });              
+                },
+    
+                //Botones y formularios
+                guardar:function(){
+                  if(this.operacion=='crear'){
+                    this.crear();                
+                  }
+                  if(this.operacion=='editar'){ 
+                    this.editar();                           
+                  }
+                  this.dialog=false;                        
+                }, 
+                formNuevo:function () {
+                  this.dialog=true;
+                  this.operacion='crear';
+                  this.situacion.Actor='';                           
+                  this.situacion.Descripcion='';
+                  this.situacion.BotonSi='';
+                  this.situacion.BotonNo='';
+                  this.situacion.Imagen='';
+
+                  this.situacion.EducacionSi=null;
+                  this.situacion.PoliticaSi=null;
+                  this.situacion.ViolenciaSi=null;
+                  this.situacion.LaboralSi=null;
+
+                  this.situacion.EducacionNo=null;
+                  this.situacion.PoliticaNo=null;
+                  this.situacion.ViolenciaNo=null;
+                  this.situacion.LaboralNo=null;
+                },
+                formEditar:function(
+                  id, 
+                  Actor, 
+                  Descripcion, 
+                  BotonSi, 
+                  BotonNo, 
+                  Imagen, 
+                  EducacionSi,
+                  PoliticaSi,
+                  ViolenciaSi,
+                  LaboralSi,
+                  EducacionNo,
+                  PoliticaNo,
+                  ViolenciaNo,
+                  LaboralNo
+                   ){              
+                  this.situacion.id = id;
+                  this.situacion.Actor = Actor;                            
+                  this.situacion.Descripcion = Descripcion;
+                  this.situacion.BotonSi = BotonSi; 
+                  this.situacion.BotonNo = BotonNo;    
+                  this.situacion.Imagen = Imagen;
+
+                  this.situacion.EducacionSi = EducacionSi;
+                  this.situacion.PoliticaSi = PoliticaSi;
+                  this.situacion.ViolenciaSi = ViolenciaSi;
+                  this.situacion.LaboralSi = LaboralSi;
+
+                  this.situacion.EducacionNo = EducacionNo;
+                  this.situacion.PoliticaNo = PoliticaNo;
+                  this.situacion.ViolenciaNo = ViolenciaNo;
+                  this.situacion.LaboralNo = LaboralNo;
+
+                  this.dialog=true;                            
+                  this.operacion='editar';
+                }
+           }      
+        });
+      </script>
+
+</body>
+</html>
